@@ -94,7 +94,7 @@
       <h1 class="h1t">罗志祥事件舆论</h1>
       <div class="sub-column">Total: {{ allComment.length }}</div>
       <div class="c-main">
-        <ul class="u7" data-title="评论:">
+        <ul class="u7" data-title="最新评论:">
           <li v-for="(item, index) of a_list" :key="index">
             <a class="ax1" :href="'https://weibo.com/' + item.uid" target="_blank">{{ item.user }}</a>: {{ item.comment }}
           </li>
