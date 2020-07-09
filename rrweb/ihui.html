@@ -2,10 +2,11 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>title</title>
+    <title>回放</title>
     <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport">
     <meta name="renderer" content="webkit">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/rrweb@0.8.2/dist/rrweb-all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/style.css">
     <style>
       * {
         margin: 0;
@@ -73,41 +74,12 @@
 
   <body>
     <div class="wrapper" id="app">
-      <button class="cbtn" @click="runRecord">{{ recBtnText }}</button>
-      <button class="cbtn" @click="handleSave">存储</button>
-      <div class="dp">
-        投保人
-        <input type="text" class="inp2" stp="投保人">
-      </div>
-      <div class="dp">
-        投保金额
-        <input type="text" class="inp1" stp="投保金额">
-      </div>
-      <div class="dp">
-        手机号
-        <input type="text" class="inp3" stp="手机号">
-      </div>
-      <div class="dp">
-        身份证
-        <input type="text" class="inp3" stp="身份证">
-      </div>
-      
-      <ul class="u2">
-        <li stp>产品</li>
-        <li stp>选择方案</li>
-        <li stp>下一步</li>
-        <li stp>切换方案</li>
-        <li stp>查看协议</li>
-        <li stp>同意协议</li>
-        <li stp>继续投保</li>
-        <li stp>健康告知</li>
-        <li stp>投保须知</li>
-        <li stp>提交</li>
-      </ul>
+      <button class="cbtn" @click="handleReplay">回放</button>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/rrweb@0.8.2/dist/rrweb-all.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/rrweb-player@latest/dist/index.js"></script> -->
     <script>
       const recArr = []
       window.vm = new Vue({
@@ -127,9 +99,15 @@
               },
             });
           },
-          handleSave() {
-            localStorage.setItem('rrweb-events', JSON.stringify(recArr))
+          // 回放
+          handleReplay() {
+            let recArr = JSON.parse(localStorage.getItem('rrweb-events'))
+            const replayer = new rrweb.Replayer(recArr, {
+              skipInactive: true,
+            })
+            replayer.play()
           },
+          
         },
         mounted() {
           
