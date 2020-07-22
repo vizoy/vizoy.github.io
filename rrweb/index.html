@@ -111,6 +111,23 @@
     <script src="https://cdn.jsdelivr.net/npm/rrweb@0.8.2/dist/rrweb-all.min.js"></script>
     <script>
       const recArr = []
+      let DELAY = 0
+      let FKC = true
+      
+      const getDELAY = () => {
+        return DELAY
+      }
+      
+      const rrwebThrottle = (func) => {
+        let start = 0
+        return function() {
+          let now = Date.now()
+          if (now - start >= DELAY) {
+            func.apply(this, arguments)
+            start = now
+          }
+        }
+      }
       window.vm = new Vue({
         el: '#app',
         data() {
@@ -122,16 +139,29 @@
         methods: {
           runRecord() {
             this.recBtnText = '录制中..'
+            // rrweb.record({
+            //   emit(event) {
+            //     recArr.push(event)
+            //   }
+            // });
             rrweb.record({
-              emit(event) {
+              emit: rrwebThrottle(event => {
+                vm.onecFunc()
                 recArr.push(event)
-              },
+              })
             });
           },
           handleSave() {
             this.recBtnText = '录制'
             localStorage.setItem('rrweb-events', JSON.stringify(recArr))
           },
+          onecFunc() {
+            if (!FKC) return
+            setTimeout(() => {
+              DELAY = 200
+              FKC = false
+            }, 1000)
+          }
         },
         mounted() {
           
