@@ -45,7 +45,7 @@
 
   <body>
     <div class="wrapper" id="app">
-      <div class="d1">{{ curTime }}</div>
+      <div class="d1">{{ fmtTime }}</div>
     </div>
 
     <script src="https://lib.baomitu.com/vue/2.6.10/vue.min.js"></script>
@@ -58,11 +58,14 @@
           }
         },
         computed: {
-          curTime() {
-            return new Date().toISOString().replace(/^(.+)T(\d{2}):(.{5}).+$/, ($m, $1, $2, $3) => {
-              return `${$1} ${+$2+8}:${$3}` 
-            })
-          }
+          fmtTime() {
+            let d = new Date()
+            let Y = d.getFullYear()
+            let M = d.getMonth() + 1
+            let D = d.getDate()
+            let hms = d.toTimeString().slice(0, 8)
+            return `${Y}-${M}-${D} ${hms}`.replace(/(\b\d(?=\b))/g, '0$1')
+          },
         },
       })
     </script>

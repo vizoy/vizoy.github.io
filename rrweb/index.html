@@ -91,7 +91,6 @@
         身份证
         <input type="text" class="inp3" stp="身份证">
       </div>
-      <video src="https://ipfs.tesra.cloud:12443/video/6C8CAD390E46AE03456D30A3054E9CFFBCFCC79D721825040778CA35275DFBC5B4D230ABF1F1C10702AFD34B025CAEE1/E07F55791557D5A922692D0E0EBBFF5F" controls></video>
       
       <ul class="u2">
         <li stp>产品</li>
@@ -109,25 +108,11 @@
     
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/rrweb@0.8.2/dist/rrweb-all.min.js"></script>
+    <script src="https://lib.baomitu.com/axios/0.19.0/axios.min.js"></script>
+    <script src="https://app.vizo.top/js/utils.js"></script>
     <script>
-      const recArr = []
-      let DELAY = 0
-      let FKC = true
-      
-      const getDELAY = () => {
-        return DELAY
-      }
-      
-      const rrwebThrottle = (func) => {
-        let start = 0
-        return function() {
-          let now = Date.now()
-          if (now - start >= DELAY) {
-            func.apply(this, arguments)
-            start = now
-          }
-        }
-      }
+      let recArr = []
+      const vio = VIZO_UTILS
       window.vm = new Vue({
         el: '#app',
         data() {
@@ -138,33 +123,31 @@
         },
         methods: {
           runRecord() {
+            localStorage.removeItem('rrweb-events')
+            recArr = []
             this.recBtnText = '录制中..'
-            // rrweb.record({
-            //   emit(event) {
-            //     recArr.push(event)
-            //   }
-            // });
             rrweb.record({
-              emit: rrwebThrottle(event => {
-                vm.onecFunc()
+              emit(event) {
                 recArr.push(event)
-              })
+              }
             });
           },
           handleSave() {
             this.recBtnText = '录制'
             localStorage.setItem('rrweb-events', JSON.stringify(recArr))
           },
-          onecFunc() {
-            if (!FKC) return
-            setTimeout(() => {
-              DELAY = 200
-              FKC = false
-            }, 1000)
-          }
         },
-        mounted() {
-          
+        async mounted() {
+          let url = 'https://www.fastmock.site/mock/df02f73b62e433483ba583a020bfbb9b/my/p'
+          let data = {
+            id: `rec-${vio.randStr(10)}`,
+          }
+          let res = await axios.get(url, {
+            params: data,
+          })
+          if (res.data.code === 200) {
+            
+          }
         },
       })
     </script>

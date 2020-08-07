@@ -106,8 +106,7 @@
           },
           // 回放
           handleReplay() {
-            let recArr = JSON.parse(localStorage.getItem('rrweb-events'))
-            let recArr = JSON.parse('')
+            let recArr = JSON.parse(localStorage.getItem('rrweb-events') || '[]')
             const replayer = new rrweb.Replayer(recArr, {
               skipInactive: true,
             })
