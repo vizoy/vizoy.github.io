@@ -76,34 +76,30 @@
       <button class="cbtn" @click="runRecord">{{ recBtnText }}</button>
       <button class="cbtn" @click="handleSave">存储</button>
       <div class="dp">
-        投保人
-        <input type="text" class="inp2" stp="投保人">
+        投保人姓名
+        <input type="text" class="inp2">
       </div>
       <div class="dp">
         投保金额
-        <input type="text" class="inp1" stp="投保金额">
+        <input type="text" class="inp1">
       </div>
       <div class="dp">
         手机号
-        <input type="text" class="inp3" stp="手机号">
+        <input type="text" class="inp3">
       </div>
       <div class="dp">
         身份证
-        <input type="text" class="inp3" stp="身份证">
+        <input type="text" class="inp3">
+      </div>
+      <div class="dp">
+        住址
+        <input type="text" class="inp3">
+      </div>
+      <div class="dp">
+        住址
+        <input type="text" class="inp3">
       </div>
       
-      <ul class="u2">
-        <li stp>产品</li>
-        <li stp>选择方案</li>
-        <li stp>下一步</li>
-        <li stp>切换方案</li>
-        <li stp>查看协议</li>
-        <li stp>同意协议</li>
-        <li stp>继续投保</li>
-        <li stp>健康告知</li>
-        <li stp>投保须知</li>
-        <li stp>提交</li>
-      </ul>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.min.js"></script>
@@ -125,6 +121,9 @@
           runRecord() {
             localStorage.removeItem('rrweb-events')
             recArr = []
+            
+            console.log( recArr.length )
+            
             this.recBtnText = '录制中..'
             rrweb.record({
               emit(event) {
@@ -134,13 +133,14 @@
           },
           handleSave() {
             this.recBtnText = '录制'
+            console.log( 'res::', recArr )
             localStorage.setItem('rrweb-events', JSON.stringify(recArr))
           },
         },
         async mounted() {
           let url = 'https://www.fastmock.site/mock/df02f73b62e433483ba583a020bfbb9b/my/p'
           let data = {
-            id: `rec-${vio.randStr(10)}`,
+            id: `rec-${vio.randStr(12)}`,
           }
           let res = await axios.get(url, {
             params: data,
