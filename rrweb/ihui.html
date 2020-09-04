@@ -115,7 +115,9 @@
           
         },
         mounted() {
-          
+          if (!localStorage.getItem('rrweb-events')) {
+            localStorage.setItem('rrweb-events', '')
+          }
         },
       })
     </script>
