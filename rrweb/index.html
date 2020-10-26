@@ -67,6 +67,12 @@
       .u2 li:hover {
         background: #fafafa;
       }
+      .ifr {
+        width: 1000px;
+        height: 600px;
+        display: block;
+        margin: 0 auto;
+      }
       
     </style>
   </head>
@@ -80,24 +86,20 @@
         <input type="text" class="inp2">
       </div>
       <div class="dp">
-        投保金额
+        性别
+        <input type="text" class="inp2">
+      </div>
+      <div class="dp">
+        身份证号
         <input type="text" class="inp1">
       </div>
       <div class="dp">
         手机号
-        <input type="text" class="inp3">
+        <input type="text" class="inp1">
       </div>
       <div class="dp">
-        身份证
-        <input type="text" class="inp3">
-      </div>
-      <div class="dp">
-        住址
-        <input type="text" class="inp3">
-      </div>
-      <div class="dp">
-        住址
-        <input type="text" class="inp3">
+        地址
+        <input type="text" class="inp1">
       </div>
       
     </div>
@@ -105,11 +107,8 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/rrweb@0.8.2/dist/rrweb-all.min.js"></script>
     <script src="https://lib.baomitu.com/axios/0.19.0/axios.min.js"></script>
-    <script src="https://app.vizo.top/js/utils.js"></script>
-    <script src="1.js"></script>
     <script>
       let recArr = []
-      const vio = VIZO_UTILS
       window.vm = new Vue({
         el: '#app',
         data() {
@@ -129,7 +128,8 @@
             rrweb.record({
               emit(event) {
                 recArr.push(event)
-              }
+              },
+              recordCanvas: true,
             });
           },
           handleSave() {
@@ -139,16 +139,7 @@
           },
         },
         async mounted() {
-          let url = 'https://www.fastmock.site/mock/df02f73b62e433483ba583a020bfbb9b/my/p'
-          let data = {
-            id: `rec-${vio.randStr(12)}`,
-          }
-          let res = await axios.get(url, {
-            params: data,
-          })
-          if (res.data.code === 200) {
-            
-          }
+          
         },
       })
     </script>
