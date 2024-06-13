@@ -1,73 +1,164 @@
-<!doctype html>
-<html lang="zh-CN">
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <meta charset="utf-8">
-    <title>-</title>
-    <meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport">
-    <meta name="renderer" content="webkit">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>matter-js 碰撞检测带数字标记</title>
     <style>
-      * {
+      body,
+      html {
         margin: 0;
-        padding: 0;
-        list-style: none;
+        overflow: hidden;
       }
-      body {
-        font-size: 14px;
-        font-family: sans-serif,"Helvetica Neue",Helvetica,"PingFang SC","Microsoft YaHei","Hiragino Sans GB",Arial;
-        color: #27282b;
-        background: #fff;
+      canvas {
+        display: block;
       }
-      a {
-        text-decoration: none;
-        color: #27282b;
-      }
-      *,
-      *::before,
-      *::after {
-        outline: none;
-        box-sizing: border-box;
-      }
-      html,
-      body {
-        height: 100%;
-      }
-      .d1 {
-        width: 50%;
-        height: 100px;
-        background: #eee;
-        user-select: none;
-        position: relative;
-        margin: 0 auto 50px auto;
-      }
-      
     </style>
   </head>
-
   <body>
-    <div class="wrapper" id="app">
-      <div class="d1">{{ fmtTime }}</div>
-    </div>
-
-    <script src="https://lib.baomitu.com/vue/2.6.10/vue.min.js"></script>
+    <canvas id="gameCanvas"></canvas>
+    <script src="https://unpkg.com/matter-js@0.19.0/build/matter.min.js"></script>
     <script>
-      const vm = new Vue({
-        el: '#app',
-        data() {
-          return {
-            aList: [],
-          }
-        },
-        computed: {
-          fmtTime() {
-            let d = new Date()
-            let Y = d.getFullYear()
-            let M = d.getMonth() + 1
-            let D = d.getDate()
-            let hms = d.toTimeString().slice(0, 8)
-            return `${Y}-${M}-${D} ${hms}`.replace(/(\b\d(?=\b))/g, '0$1')
-          },
-        },
+      // 初始化和配置
+      const canvas = document.getElementById('gameCanvas')
+      const context = canvas.getContext('2d')
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+
+      const CFG = {
+        color: '#f1f1f1', // 小球颜色
+        size: 14, // 小球大小
+        speed: 15, // 小球初始速度
+        maxBalls: 200, // 最大小球数量
+      }
+
+      const Engine = Matter.Engine,
+        Render = Matter.Render,
+        Runner = Matter.Runner,
+        Bodies = Matter.Bodies,
+        Composite = Matter.Composite,
+        Events = Matter.Events
+
+      const engine = Engine.create({ gravity: { x: 0, y: 0 } })
+      const world = engine.world
+
+      const runner = Runner.create()
+      Runner.run(runner, engine)
+
+      // 边界
+      const boundaries = [
+        Bodies.rectangle(
+          canvas.width / 2,
+          -CFG.size,
+          canvas.width,
+          CFG.size * 2,
+          { isStatic: true },
+        ),
+        Bodies.rectangle(
+          canvas.width / 2,
+          canvas.height + CFG.size,
+          canvas.width,
+          CFG.size * 2,
+          { isStatic: true },
+        ),
+        Bodies.rectangle(
+          -CFG.size,
+          canvas.height / 2,
+          CFG.size * 2,
+          canvas.height,
+          { isStatic: true },
+        ),
+        Bodies.rectangle(
+          canvas.width + CFG.size,
+          canvas.height / 2,
+          CFG.size * 2,
+          canvas.height,
+          { isStatic: true },
+        ),
+      ]
+      Composite.add(world, boundaries)
+
+      // 小球数组
+      const balls = []
+
+      // 数字渲染
+      const renderDigit = (context, x, y, digit, color = '#aaa') => {
+        context.font = `${CFG.size * 0.6}px Arial`
+        context.textAlign = 'center'
+        context.textBaseline = 'middle'
+        context.fillStyle = color
+        context.fillText(digit, x, y)
+      }
+
+      // 鼠标点击生成小球
+      canvas.addEventListener('click', event => {
+        const ball = Bodies.circle(event.clientX, event.clientY, CFG.size, {
+          label: 'Ball', // 为小球设置标签
+          density: 0.1,
+          restitution: 1,
+          friction: 0,
+          frictionAir: 0,
+          collisionCount: 0, // 初始化碰撞计数
+        })
+
+        const angle = Math.random() * 2 * Math.PI
+        Matter.Body.setVelocity(ball, {
+          x: Math.cos(angle) * CFG.speed,
+          y: Math.sin(angle) * CFG.speed,
+        })
+
+        Composite.add(world, ball)
+        balls.push(ball)
+        if (balls.length > CFG.maxBalls) {
+          Composite.remove(world, balls.shift())
+        }
       })
+
+      // 碰撞侦测逻辑
+      Events.on(engine, 'collisionStart', event => {
+        event.pairs.forEach(pair => {
+          const bodyA = pair.bodyA
+          const bodyB = pair.bodyB
+
+          if (bodyA.label === 'Ball' && bodyB.label === 'Ball') {
+            bodyA.collisionCount = (bodyA.collisionCount || 0) + 1
+            bodyB.collisionCount = (bodyB.collisionCount || 0) + 1
+          }
+        })
+      })
+
+      // 渲染函数
+      const render = () => {
+        context.clearRect(0, 0, canvas.width, canvas.height)
+
+        balls.forEach(ball => {
+          context.beginPath()
+          context.arc(
+            ball.position.x,
+            ball.position.y,
+            CFG.size,
+            0,
+            2 * Math.PI,
+          )
+          context.fillStyle = CFG.color
+          context.fill()
+          context.closePath()
+
+          // 显示碰撞计数
+          if (ball.collisionCount > 0) {
+            renderDigit(
+              context,
+              ball.position.x,
+              ball.position.y,
+              ball.collisionCount,
+            )
+          }
+        })
+        requestAnimationFrame(render)
+      }
+
+      // 开始渲染
+      render()
     </script>
   </body>
 </html>
