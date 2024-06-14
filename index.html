@@ -27,9 +27,11 @@
 
       const CFG = {
         color: '#f1f1f1', // 小球颜色
-        size: 14, // 小球大小
-        speed: 15, // 小球初始速度
-        maxBalls: 1000, // 最大小球数量
+        size: 12,         // 小球大小
+        speed: 10,        // 小球初始速度
+        maxBalls: 1000,   // 最大小球数量
+        hyCount: 150,     // 达到该次数重新活跃
+        showCount: false, // 是否显示数字标记
       }
 
       const Engine = Matter.Engine,
@@ -93,12 +95,12 @@
       // 鼠标点击生成小球
       canvas.addEventListener('click', event => {
         const ball = Bodies.circle(event.clientX, event.clientY, CFG.size, {
-          label: 'Ball', // 为小球设置标签
-          density: 0.1,
-          restitution: 1,
-          friction: 0,
-          frictionAir: 0,
-          collisionCount: 0, // 初始化碰撞计数
+          label: 'Ball',       // 为小球设置标签
+          density: 0.01,       // 密度
+          restitution: 1,      // 弹性系数
+          friction: 0,         // 摩擦力
+          frictionAir: 0,      // 空气阻力
+          collisionCount: 0,   // 初始化碰撞计数
         })
 
         const angle = Math.random() * 2 * Math.PI
@@ -123,6 +125,22 @@
           if (bodyA.label === 'Ball' && bodyB.label === 'Ball') {
             bodyA.collisionCount = (bodyA.collisionCount || 0) + 1
             bodyB.collisionCount = (bodyB.collisionCount || 0) + 1
+            if (bodyA.collisionCount >= CFG.hyCount) {
+              bodyA.collisionCount = 0
+              const angle = Math.random() * 2 * Math.PI
+              Matter.Body.setVelocity(bodyA, {
+                x: Math.cos(angle) * CFG.speed,
+                y: Math.sin(angle) * CFG.speed,
+              })
+            }
+            if (bodyB.collisionCount >= CFG.hyCount) {
+              bodyB.collisionCount = 0
+              const angle = Math.random() * 2 * Math.PI
+              Matter.Body.setVelocity(bodyB, {
+                x: Math.cos(angle) * CFG.speed,
+                y: Math.sin(angle) * CFG.speed,
+              })
+            }
           }
         })
       })
@@ -131,7 +149,7 @@
       const render = () => {
         context.clearRect(0, 0, canvas.width, canvas.height)
 
-        balls.forEach(ball => {
+        balls.forEach((ball, i) => {
           context.beginPath()
           context.arc(
             ball.position.x,
@@ -140,12 +158,12 @@
             0,
             2 * Math.PI,
           )
-          context.fillStyle = CFG.color
+          context.fillStyle = i === 0 ? '#f44' : CFG.color
           context.fill()
           context.closePath()
 
           // 显示碰撞计数
-          if (ball.collisionCount > 0) {
+          if (ball.collisionCount > 0 && CFG.showCount) {
             renderDigit(
               context,
               ball.position.x,
